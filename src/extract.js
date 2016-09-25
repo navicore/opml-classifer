@@ -37,7 +37,7 @@ const htmlfeed = async((feed) => {
     };
     feed.samplePage = awaiting(rp(options))
   } catch (e) {
-    //console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
+    console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
   }
   return feed
 })
@@ -64,7 +64,7 @@ const uclassify = async((feed, prefix, uclassifyUrl, readkey) => {
       return b.p - a.p
     })[0].className
   } catch (e) {
-    //console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
+    console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
   }
   return feed
 })
@@ -99,7 +99,7 @@ const classyfeed = async((feed, readkey) => {
       ))
     }
   } catch (e) {
-    //console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
+    console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
   }
   return feed
 })
@@ -121,7 +121,7 @@ const handle = async((path, readkey) => {
     if (feedWithHtml) {
       const classified = awaiting(classyfeed(feedWithHtml, readkey))
       if (classified) {
-        //console.log(`classyfeed: ${classified.htmlUrl}: ${classified.topic}`)
+        console.log(`classyfeed: ${classified.htmlUrl}: ${classified.topic}`)
         if (!m[classified.topic]) {
           m[classified.topic] = []
         }
@@ -131,7 +131,7 @@ const handle = async((path, readkey) => {
       }
     }
   }
-  console.log(JSON.stringify(m, 0, 2))
+  awaiting(fs.writeFileAsync("./out.json", JSON.stringify(m, 0, 2)))
 })
 
 module.exports.extract = extract
