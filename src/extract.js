@@ -28,7 +28,8 @@ const htmlfeed = async((feed) => {
     const options = {
       uri: feed.htmlUrl,
       transform: function (body) {
-        return cheerio.load(body).text();
+        //return cheerio.load(body).text()
+        return body
       },
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'
@@ -36,7 +37,7 @@ const htmlfeed = async((feed) => {
     };
     feed.samplePage = awaiting(rp(options))
   } catch (e) {
-    console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
+    //console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
   }
   return feed
 })
@@ -63,7 +64,7 @@ const uclassify = async((feed, prefix, uclassifyUrl, readkey) => {
       return b.p - a.p
     })[0].className
   } catch (e) {
-    console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
+    //console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
   }
   return feed
 })
@@ -98,22 +99,39 @@ const classyfeed = async((feed, readkey) => {
       ))
     }
   } catch (e) {
-    console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
+    //console.log(`error ${feed.htmlUrl}:\n${JSON.stringify(e, 0, 2)}`)
   }
   return feed
 })
 
+function makeMap(feeds) {
+  for (feed of feeds) {
+    if (!m[feed.topic]) {
+      m[feed.topic] = []
+    }
+    m[feed.topic] = feed
+  }
+  return m
+}
 const handle = async((path, readkey) => {
   const feeds = awaiting(extract(path))
+  const m = {}
   for (feed of feeds) {
     const feedWithHtml = awaiting(htmlfeed(feed))
     if (feedWithHtml) {
       const classified = awaiting(classyfeed(feedWithHtml, readkey))
       if (classified) {
-        console.log(`classyfeed: ${classified.htmlUrl}: ${classified.topic}`)
+        //console.log(`classyfeed: ${classified.htmlUrl}: ${classified.topic}`)
+        if (!m[classified.topic]) {
+          m[classified.topic] = []
+        }
+        classified.samplePage = null
+        classified.topicClassifier = null
+        m[classified.topic].push(classified)
       }
     }
   }
+  console.log(JSON.stringify(m, 0, 2))
 })
 
 module.exports.extract = extract
